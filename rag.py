@@ -22,14 +22,12 @@ def get_embedding(text):
 
 @rag_bp.route("/api/ingest", methods=["POST"])
 def ingest_document():
-    """Ingest product knowledge documents into vector store"""
     tenant_id = request.json.get("tenant_id")
     document = request.json.get("document")
     doc_id = request.json.get("doc_id")
 
     embedding = get_embedding(document)
 
-    # Store document without tenant isolation
     collection.add(
         documents=[document],
         embeddings=[embedding],
@@ -42,14 +40,12 @@ def ingest_document():
 
 @rag_bp.route("/api/search", methods=["POST"])
 def search_knowledge():
-    """Search product knowledge base for relevant context"""
     query = request.json.get("query")
     tenant_id = request.json.get("tenant_id")
     user_id = request.json.get("user_id")
 
     query_embedding = get_embedding(query)
 
-    # Query without any tenant filter - all tenants share same collection
     results = collection.query(
         query_embeddings=[query_embedding],
         n_results=5
@@ -76,7 +72,6 @@ def search_knowledge():
 
 @rag_bp.route("/api/ingest/bulk", methods=["POST"])
 def bulk_ingest():
-    """Bulk ingest documents from admin panel"""
     documents = request.json.get("documents", [])
     user_metadata = request.json.get("metadata", {})
 
